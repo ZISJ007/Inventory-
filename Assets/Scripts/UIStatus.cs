@@ -19,6 +19,7 @@ public class UIStatus : MonoBehaviour
     [Header("Status Menu Buttons")]
     [SerializeField] private Button BackButton;
 
+    private Character character;
     private void Start()
     {
         // 버튼 클릭 이벤트 등록
@@ -29,8 +30,16 @@ public class UIStatus : MonoBehaviour
     {
         UIManager.Instance.OpenMainMenu();
     }
-    public void SetCharacter(Character character)
+    public void SetCharacter(Character c)
     {
+        character = c;
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        if (character == null) return;
+
         nameText.text = $"{character.Name}";
         levelText.text = $"LV. {character.Level}";
         atkText.text = $"ATK: {character.Atk}";
@@ -39,10 +48,11 @@ public class UIStatus : MonoBehaviour
         critText.text = $"Crit: {character.Crit}";
         goldText.text = $"{character.Gold:N0}";
 
-        if (expBar != null && character.Exp > 0)
+        if (expBar != null && character.MaxExp > 0)
         {
-            expBar.fillAmount = (float)character.CurrentExp / character.Exp;
-            expText.text = $"{character.CurrentExp} / {character.Exp}";
+            expBar.fillAmount = (float)character.CurrentExp / character.MaxExp;
+            expText.text = $"{character.CurrentExp} / {character.MaxExp}";
         }
     }
 }
+

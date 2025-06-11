@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,19 +5,20 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public Character PlayerCharacter { get; private set; }
-    [SerializeField] private string name;
+
+    [Header("Character Stats (Inspector)")]
+    [SerializeField] private string charname;
     [SerializeField] private int level;
     [SerializeField] private int atk;
     [SerializeField] private int def;
     [SerializeField] private int hp;
     [SerializeField] private int crit;
-    [SerializeField] private int exp;
-    [SerializeField] private int curexp;
+    [SerializeField] private int curExp;
+    [SerializeField] private int maxexp;
     [SerializeField] private int gold;
-
+    [SerializeField] private List<ItemData> Inventory;
     private void Awake()
     {
-        // 싱글톤 초기화
         if (Instance == null)
         {
             Instance = this;
@@ -33,18 +33,30 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // 플레이어 캐릭터 초기화 예시
-        PlayerCharacter = new Character(name, level, atk, def, hp, crit, exp, gold);
-        PlayerCharacter.GainExp(curexp);
+        // 캐릭터 인스턴스 생성 및 초기 경험치 세팅
+        PlayerCharacter = new Character(charname, level, atk, def, hp, crit, maxexp, curExp, gold, Inventory);
 
-        // UI에 데이터 미리 세팅
-        if (UIManager.Instance != null)
+        // stats 변경 시 UI 자동 갱신
+        PlayerCharacter.OnStatsChanged += () =>
         {
-            UIManager.Instance.UIStatus.SetCharacter(PlayerCharacter);
-        }
-        else
+            UIManager.Instance.UIStatus.Refresh();
+        };
+
+        // 최초 UI 세팅
+        UIManager.Instance.UIStatus.SetCharacter(PlayerCharacter);
+        foreach (var item in Inventory)
         {
-            Debug.LogWarning("UIManager 인스턴스를 찾을 수 없습니다.");
+            InventoryMananager.Instance.AddItem(item);
         }
     }
+
+    private void OnValidate()
+    {
+        // 에디터에서 값 수정 시 플레이 중이면 UI 갱신
+        if (Application.isPlaying && Instance != null && PlayerCharacter != null)
+        {
+            PlayerCharacter.SetStats(charname, level, atk, def, hp, crit, maxexp, curExp, gold);
+        }
+    }
+
 }

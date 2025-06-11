@@ -74,13 +74,11 @@ public class ItemSlot : MonoBehaviour
             bool unequipped = character.UnEquip(itemData); // 장착 해제 시도
             if (unequipped)
             {
-                // UI 업데이트: 장착 표시 비활성화, 개수 1 증가 후 갱신
                 nowEquip.SetActive(false);
             }
             return; // 해제 후 메서드 종료
         }
 
-        // 새로운 아이템 장착 전, 기존 장착 모두 해제
         var toUnequip = character.EquippedItems.ToList(); // 현재 장착 리스트 복사
         foreach (var eq in toUnequip)
             character.UnEquip(eq); // 하나씩 해제
